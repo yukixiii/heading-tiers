@@ -1,0 +1,121 @@
+/*
+ * heading-tiers
+ * Lines, block widgets and Reading view sections carry --ht-depth,
+ * --ht-guide-img and --ht-guide-pos inline; the plugin sets the rest on body.
+ *
+ * Editor lines can't take a margin (Obsidian forces margin: 0 !important) or
+ * padding (list and quote lines carry inline padding for their hanging indent),
+ * and code-block frames are often drawn with borders on the lines. So lines are
+ * shifted with translate and narrowed by the same amount; backgrounds and frames
+ * move along, and the browser still hit-tests the moved text.
+ *
+ * Block widgets (tables, callouts, math, embeds) are shifted the same way.
+ *
+ * Editor guides are bars in a CodeMirror layer behind the text (.ht-guides),
+ * so clipping widgets and line borders don't affect them.
+ */
+
+body {
+	--ht-indent: 24px;
+	--ht-guide-width: 1px;
+	/* Distance from the parent heading's left edge to its guide. */
+	--ht-guide-offset: 2px;
+	--ht-guide-alpha: 55%;
+	--ht-g1: color-mix(in srgb, var(--ht-c1) var(--ht-guide-alpha), transparent);
+	--ht-g2: color-mix(in srgb, var(--ht-c2) var(--ht-guide-alpha), transparent);
+	--ht-g3: color-mix(in srgb, var(--ht-c3) var(--ht-guide-alpha), transparent);
+	--ht-g4: color-mix(in srgb, var(--ht-c4) var(--ht-guide-alpha), transparent);
+	--ht-g5: color-mix(in srgb, var(--ht-c5) var(--ht-guide-alpha), transparent);
+	--ht-g6: color-mix(in srgb, var(--ht-c6) var(--ht-guide-alpha), transparent);
+}
+
+/* ---------- Editor: lines ---------- */
+
+.markdown-source-view.mod-cm6 .cm-content > .ht-line,
+.markdown-source-view.mod-cm6 .cm-content > .ht-block {
+	--ht-x: calc(var(--ht-depth) * var(--ht-indent));
+	position: relative;
+	translate: var(--ht-x) 0;
+	width: calc(100% - var(--ht-x));
+}
+
+/* translate makes every line paint as its own layer, in order. The code-block
+   language label hangs below the first line; keep it above the next line. */
+.markdown-source-view.mod-cm6 .cm-content > .ht-line.HyperMD-codeblock-begin {
+	z-index: 1;
+}
+
+.ht-guides .ht-guide {
+	position: absolute;
+	width: var(--ht-guide-width);
+	pointer-events: none;
+}
+
+.ht-guide-1 { background-color: var(--ht-g1); }
+.ht-guide-2 { background-color: var(--ht-g2); }
+.ht-guide-3 { background-color: var(--ht-g3); }
+.ht-guide-4 { background-color: var(--ht-g4); }
+.ht-guide-5 { background-color: var(--ht-g5); }
+.ht-guide-6 { background-color: var(--ht-g6); }
+
+/* ---------- Reading view ----------
+ * Every section of a note gets .ht-section. The indent is a transparent left
+ * border, which leaves the native vertical margin collapsing alone. Guides are
+ * an ::after over the border, stretched up by the measured gap to the previous
+ * section (--ht-gap-above) so they run through the margins.
+ * Table sections scroll (overflow: auto) and would clip the ::after, so they
+ * paint their guides as their own background, and the section above them
+ * stretches down over the gap instead (--ht-gap-below).
+ */
+
+body:not(.ht-off) .markdown-preview-view .ht-section {
+	position: relative;
+	border-inline-start: calc(var(--ht-depth) * var(--ht-indent)) solid transparent;
+}
+
+body:not(.ht-off) .markdown-preview-view .ht-section::after {
+	content: "";
+	position: absolute;
+	top: calc(-1 * var(--ht-gap-above, 0px));
+	bottom: calc(-1 * var(--ht-gap-below, 0px));
+	inset-inline-start: calc(-1 * var(--ht-depth) * var(--ht-indent));
+	width: calc(var(--ht-depth) * var(--ht-indent));
+	background-image: var(--ht-guide-img, none);
+	background-position: var(--ht-guide-pos);
+	background-size: var(--ht-guide-width) 100%;
+	background-repeat: no-repeat;
+	pointer-events: none;
+	-webkit-print-color-adjust: exact;
+	print-color-adjust: exact;
+}
+
+body:not(.ht-off) .markdown-preview-view .ht-section.el-table {
+	background-image: var(--ht-guide-img, none);
+	background-position: var(--ht-guide-pos);
+	background-size: var(--ht-guide-width) 100%;
+	background-repeat: no-repeat;
+	background-origin: border-box;
+	background-clip: border-box;
+	-webkit-print-color-adjust: exact;
+	print-color-adjust: exact;
+}
+
+body:not(.ht-off) .markdown-preview-view .ht-section.el-table::after {
+	content: none;
+}
+
+body.ht-no-guides .markdown-preview-view .ht-section::after {
+	content: none;
+}
+
+body.ht-no-guides .markdown-preview-view .ht-section.el-table {
+	background-image: none;
+}
+
+/* ---------- Toggles ---------- */
+
+body.ht-off .markdown-source-view.mod-cm6 .cm-content > .ht-line,
+body.ht-off .markdown-source-view.mod-cm6 .cm-content > .ht-block {
+	translate: none;
+	width: auto;
+}

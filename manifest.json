@@ -1,0 +1,9 @@
+{
+	"id": "heading-tiers",
+	"name": "Heading Tiers",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "Indent content by heading nesting, with guide lines colored per heading level.",
+	"author": "yuki",
+	"isDesktopOnly": false
+}
