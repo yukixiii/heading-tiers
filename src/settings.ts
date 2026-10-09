@@ -4,6 +4,8 @@ import type HeadingTiersPlugin from "./main";
 export interface HeadingTiersSettings {
 	enabled: boolean;
 	indentWidth: number;
+	/** Indent text one level deeper than its heading. */
+	indentBody: boolean;
 	showGuides: boolean;
 	guideWidth: number;
 	colorMode: "level" | "single";
@@ -16,6 +18,7 @@ export interface HeadingTiersSettings {
 export const DEFAULT_SETTINGS: HeadingTiersSettings = {
 	enabled: true,
 	indentWidth: 24,
+	indentBody: true,
 	showGuides: true,
 	guideWidth: 1,
 	colorMode: "level",
@@ -49,6 +52,7 @@ export function loadSettings(data: unknown): HeadingTiersSettings {
 	return {
 		enabled: typeof d.enabled === "boolean" ? d.enabled : DEFAULT_SETTINGS.enabled,
 		indentWidth: num(d.indentWidth, DEFAULT_SETTINGS.indentWidth, 4, 80),
+		indentBody: typeof d.indentBody === "boolean" ? d.indentBody : DEFAULT_SETTINGS.indentBody,
 		showGuides: typeof d.showGuides === "boolean" ? d.showGuides : DEFAULT_SETTINGS.showGuides,
 		guideWidth: num(d.guideWidth, DEFAULT_SETTINGS.guideWidth, 0.5, 4),
 		colorMode: d.colorMode === "single" ? "single" : "level",
@@ -96,6 +100,16 @@ export class HeadingTiersSettingTab extends PluginSettingTab {
 						s.indentWidth = v;
 						await save();
 					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Indent body text")
+			.setDesc("Indent text one level deeper than its heading. When off, text lines up with its heading and only nested headings are indented.")
+			.addToggle((t) =>
+				t.setValue(s.indentBody).onChange(async (v) => {
+					s.indentBody = v;
+					await save();
+				}),
 			);
 
 		new Setting(containerEl)

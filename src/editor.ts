@@ -8,15 +8,15 @@ import {
 	ViewPlugin,
 	type ViewUpdate,
 } from "@codemirror/view";
-import { computeTiers, type TierResult } from "./depth";
+import { computeTiers, tierOptions, type TierResult } from "./depth";
 import { STYLE_PROPS, styleEntries, tierStyle } from "./style";
 
 const tierCache = new WeakMap<Text, TierResult>();
 
 function tiersOf(doc: Text): TierResult {
 	let r = tierCache.get(doc);
-	if (!r) {
-		r = computeTiers(Array.from(doc.iterLines()));
+	if (!r || r.indentBody !== tierOptions.indentBody) {
+		r = computeTiers(Array.from(doc.iterLines()), tierOptions);
 		tierCache.set(doc, r);
 	}
 	return r;
@@ -107,7 +107,9 @@ const indentPlugin = ViewPlugin.fromClass(
 		}
 
 		update(u: ViewUpdate) {
-			if (u.docChanged || u.viewportChanged) this.decorations = build(u.view);
+			// workspace.updateOptions() reconfigures the editor after a settings change.
+			if (u.docChanged || u.viewportChanged || u.transactions.some((tr) => tr.reconfigured))
+				this.decorations = build(u.view);
 			this.scheduleBlocks(u.view);
 		}
 

@@ -1,14 +1,14 @@
 import type { MarkdownPostProcessorContext } from "obsidian";
-import { computeTiers, type TierResult } from "./depth";
+import { computeTiers, tierOptions, type TierResult } from "./depth";
 import { styleEntries, tierStyle } from "./style";
 
 let lastText: string | null = null;
 let lastResult: TierResult | null = null;
 
 function tiersOf(text: string): TierResult {
-	if (text !== lastText) {
+	if (text !== lastText || lastResult?.indentBody !== tierOptions.indentBody) {
 		lastText = text;
-		lastResult = computeTiers(text.split("\n"));
+		lastResult = computeTiers(text.split("\n"), tierOptions);
 	}
 	return lastResult!;
 }

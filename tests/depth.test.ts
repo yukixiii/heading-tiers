@@ -64,3 +64,28 @@ describe("computeTiers", () => {
 		expect(computeTiers(["#tag", "####### seven", "#", "  ## B"]).tiers.map((t) => t.headingLevel)).toEqual([0, 0, 1, 2]);
 	});
 });
+
+describe("computeTiers with indentBody: false", () => {
+	const flat = { indentBody: false };
+	const depthsFlat = (text: string) => computeTiers(text.split("\n"), flat).tiers.map((t) => t.ancestors.length);
+
+	it("lines text up with its heading", () => {
+		const text = ["# A", "a", "## B", "b", "### C", "c"].join("\n");
+		expect(depthsFlat(text)).toEqual([0, 0, 1, 1, 2, 2]);
+		expect(computeTiers(text.split("\n"), flat).tiers[5].ancestors).toEqual([1, 2]);
+	});
+
+	it("follows the heading back up", () => {
+		const text = ["# A", "## B", "### C", "c", "## D", "d", "# E", "e"].join("\n");
+		expect(depthsFlat(text)).toEqual([0, 1, 2, 2, 1, 1, 0, 0]);
+	});
+
+	it("treats fenced and math lines as text", () => {
+		const text = ["# A", "## B", "```", "# not", "```", "$$", "x", "$$"].join("\n");
+		expect(depthsFlat(text)).toEqual([0, 1, 1, 1, 1, 1, 1, 1]);
+	});
+
+	it("leaves text before the first heading and frontmatter at 0", () => {
+		expect(depthsFlat(["---", "a: 1", "---", "intro", "# A", "a"].join("\n"))).toEqual([0, 0, 0, 0, 0, 0]);
+	});
+});

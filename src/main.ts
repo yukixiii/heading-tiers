@@ -1,4 +1,5 @@
 import { MarkdownView, Plugin, TFile } from "obsidian";
+import { tierOptions } from "./depth";
 import { headingTiersEditor } from "./editor";
 import { headingSignature, processSection } from "./reading";
 import {
@@ -55,15 +56,19 @@ export default class HeadingTiersPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+		const bodyChanged = tierOptions.indentBody !== this.settings.indentBody;
 		this.applyBodyStyle();
 		// The guide layer measures in pixels; make editors redraw it.
 		this.app.workspace.updateOptions();
+		// Depths are baked into rendered sections, unlike the body-level variables.
+		if (bodyChanged) this.rerenderReading();
 	}
 
 	/** Settings live in body-level CSS variables, so no line decoration has to be rebuilt. */
 	private applyBodyStyle() {
 		const s = this.settings;
 		const b = document.body;
+		tierOptions.indentBody = s.indentBody;
 		b.style.setProperty("--ht-indent", `${s.indentWidth}px`);
 		b.style.setProperty("--ht-guide-width", `${s.guideWidth}px`);
 		for (let i = 0; i < 6; i++) {
