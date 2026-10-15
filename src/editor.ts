@@ -78,7 +78,11 @@ function tagBlocks(view: EditorView) {
 				// Not mapped to the document (being torn down); leave it alone.
 			}
 		}
-		if (el.dataset.htStyle !== (style ?? undefined)) updates.push([el, style]);
+		// Obsidian wipes a table widget's style attribute when the cursor enters it,
+		// so check the element itself too, not just the marker.
+		const stale =
+			style !== null && (!el.classList.contains("ht-block") || el.style.getPropertyValue("--ht-depth") === "");
+		if (stale || el.dataset.htStyle !== (style ?? undefined)) updates.push([el, style]);
 	});
 	return updates;
 }
