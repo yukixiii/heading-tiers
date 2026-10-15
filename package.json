@@ -1,6 +1,6 @@
 {
   "name": "heading-tiers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Indent notes by heading nesting, with guide lines colored per heading level.",
   "main": "main.js",
   "scripts": {
@@ -9,7 +9,13 @@
     "test": "vitest run",
     "version": "node scripts/version-bump.mjs && git add manifest.json versions.json"
   },
-  "keywords": ["obsidian", "plugin", "heading", "indent", "outline"],
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "heading",
+    "indent",
+    "outline"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.0.0",
