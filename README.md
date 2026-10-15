@@ -43,8 +43,13 @@ npm install
 npm run build
 ```
 
-`main.js`、`manifest.json`、`styles.css` を `<vault>/.obsidian/plugins/heading-tiers/` にコピーし、
-設定 > コミュニティプラグイン で有効にする。
+ビルドに成功すると、このマシンの Vault（Obsidian の `obsidian.json` に載っているもの）のうち、すでに
+`<vault>/.obsidian/plugins/heading-tiers/` フォルダがあるものに `main.js`、`manifest.json`、`styles.css` が自動でコピーされる
+（Vault の `data.json` には触らない。開発ディレクトリへのシンボリックリンクになっている Vault はスキップ）。
+Vault で使い始めるときはそのフォルダを一度作り、設定 > コミュニティプラグイン で有効にする。
+`OBSIDIAN_VAULTS`（Windows では `;` 区切り）で Vault を明示的に指定することもできる。
+
+他のマシンでは BRAT プラグインで `yukixiii/heading-tiers` を追加してインストール・更新する。
 
 STS-indentation や Heading Level Indent など、同じようにインデントするプラグインとは同時に使わないこと（二重に下がる）。
 
@@ -69,3 +74,12 @@ STS-indentation や Heading Level Indent など、同じようにインデント
 npm test       # 深さ計算の単体テスト (vitest)
 npm run dev    # ウォッチビルド
 ```
+
+### リリース
+
+```sh
+npm version patch   # package.json、manifest.json、versions.json を更新してタグを打つ（"v" は付けない）
+git push --follow-tags
+```
+
+タグを push すると `.github/workflows/release.yml` がテスト・ビルドし、3 つのファイルを GitHub リリースに添付する。
